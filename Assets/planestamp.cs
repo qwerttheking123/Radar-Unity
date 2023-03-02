@@ -36,10 +36,10 @@ public class planestamp : MonoBehaviour
             goto endearly;
         }
         serial = arduino.ReadLine();
-        if (serial == "up") GameObject.Find("stamp").transform.position += new Vector3(0, 0.725f, 0);
-        if (serial == "down") GameObject.Find("stamp").transform.position -= new Vector3(0, 0.725f, 0);
-        if (serial == "left") GameObject.Find("stamp").transform.position += new Vector3(0.725f, 0, 0);
-        if (serial == "right") GameObject.Find("stamp").transform.position -= new Vector3(0.725f, 0, 0);
+        if (serial == "up") GameObject.Find("stamp").transform.position += new Vector3(0, 0.8f, 0);
+        if (serial == "down") GameObject.Find("stamp").transform.position -= new Vector3(0, 0.8f, 0);
+        if (serial == "left") GameObject.Find("stamp").transform.position += new Vector3(0.8f, 0, 0);
+        if (serial == "right") GameObject.Find("stamp").transform.position -= new Vector3(0.8f, 0, 0);
         if (serial == "guess")
         {
             stampos = stamp.transform.position;
