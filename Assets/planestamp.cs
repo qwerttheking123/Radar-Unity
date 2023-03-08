@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO.Ports;
+using UnityEngine.UI;
+using TMPro;
 
 public class planestamp : MonoBehaviour
 {
@@ -10,13 +12,15 @@ public class planestamp : MonoBehaviour
     SerialPort arduino;
     int px;
     int py;
-    object[,] correct = { { 8, 3 }, { 2, 6 }, { 4, 4 }, { 1, 1 }, { 5, 3 } };
+    object[,] correct = { {1, 2}, {2, 6}, {4, 4}, {6, 7}, {8, 3} };
     int correctamount;
+    int wrongamount;
     string serial;
-    private float delaybetweenguesses = 5f;
+    float delaybetweenwrong = 5f;
     private float timetorefresh;
-    private GameObject wrongguess;
-    // B3, N6, G4, P1 F3, the correct is just translated for ease of use
+    GameObject temp;
+    TMP_Text reboottext;
+    // B2, J2, F4, N6, D8 the correct is just translated for ease of use
     void Start()
     {
         string[] ports = SerialPort.GetPortNames();
@@ -26,15 +30,21 @@ public class planestamp : MonoBehaviour
             Debug.Log(port);
         }
         stamp = GameObject.Find("stamp");
+        Debug.Log(stamp);
         arduino.ReadTimeout = 10000;
         arduino.Open();
+        reboottext = GameObject.Find("reboot").GetComponent<TextMeshProUGUI>();
+        Debug.Log(reboottext);
     }
     void Update()
     {
+        GameObject.Find("spin").transform.RotateAround(new Vector3(0, 0, 0), Vector3.forward, -1);
         if (timetorefresh >= Time.time) {
+            reboottext.text = "Rebooting " + (Mathf.Round((timetorefresh - Time.time)*10)/10).ToString();
             arduino.ReadLine();
             goto endearly;
         }
+        reboottext.text = string.Empty;
         serial = arduino.ReadLine();
         if (serial == "up") GameObject.Find("stamp").transform.position += new Vector3(0, 0.8f, 0);
         if (serial == "down") GameObject.Find("stamp").transform.position -= new Vector3(0, 0.8f, 0);
@@ -51,7 +61,7 @@ public class planestamp : MonoBehaviour
                 int cy = (int)correct[i, 1];
                 if (px == cx && py == cy)
                 {
-                    Instantiate(GameObject.Find("plane right template"), stampos, stamp.transform.rotation, GameObject.Find("stamped").transform);
+                    temp = Instantiate(GameObject.Find("plane right template"), stampos, stamp.transform.rotation, GameObject.Find("stamped").transform);
                     correctamount += 1;
                     if (correctamount == 5)
                     {
@@ -63,24 +73,39 @@ public class planestamp : MonoBehaviour
                 {
                     if (i == 4)
                     {
-                        wrongguess = Instantiate(GameObject.Find("plane wrong template"), stampos, stamp.transform.rotation, GameObject.Find("stamped").transform);
-                        timetorefresh = Time.time + delaybetweenguesses;
+                        temp = Instantiate(GameObject.Find("plane wrong template"), stampos, stamp.transform.rotation, GameObject.Find("stamped").transform);
+                        temp.tag = "wrong";
+                        wrongamount += 1;
+                        if (wrongamount >= 3)
+                        {
+                            clearscreen();
+                        }
                     }
                 }
             }
-        gohere:
-            Debug.Log("right");
+        gohere:;
         }
     endearly:;
     }
     static object convertx(float x) {
-        x = (Mathf.Round((x - .8712f) / 1.7424f) + 5);
+        x = (Mathf.Round(x*1.25f + 4.01f));
         x = (int)x;
         return (int)x;
     }
     static object converty(float y) {
-        y = (Mathf.Round((y - .55f) / .98f) + 5);
+        y = (Mathf.Round(y*1.25f + 4.01f));
         y = (int)y;
         return (int)y;
+    }
+    void clearscreen()
+    {
+        GameObject[] deletethis = GameObject.FindGameObjectsWithTag("wrong");
+        Debug.Log(deletethis);
+        foreach (GameObject getridofit in deletethis)
+            Destroy(getridofit);
+        wrongamount = 0;
+        timetorefresh = delaybetweenwrong + Time.time;
+        delaybetweenwrong += 5f;
+        Debug.Log(delaybetweenwrong);
     }
 }
