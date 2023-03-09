@@ -16,7 +16,7 @@ public class planestamp : MonoBehaviour
     int correctamount;
     int wrongamount;
     string serial;
-    float delaybetweenwrong = 5f;
+    float delaybetweenwrong = 30f;
     private float timetorefresh;
     GameObject temp;
     TMP_Text reboottext;
@@ -30,11 +30,9 @@ public class planestamp : MonoBehaviour
             Debug.Log(port);
         }
         stamp = GameObject.Find("stamp");
-        Debug.Log(stamp);
         arduino.ReadTimeout = 10000;
         arduino.Open();
         reboottext = GameObject.Find("reboot").GetComponent<TextMeshProUGUI>();
-        Debug.Log(reboottext);
     }
     void Update()
     {
@@ -46,10 +44,10 @@ public class planestamp : MonoBehaviour
         }
         reboottext.text = string.Empty;
         serial = arduino.ReadLine();
-        if (serial == "up") GameObject.Find("stamp").transform.position += new Vector3(0, 0.8f, 0);
-        if (serial == "down") GameObject.Find("stamp").transform.position -= new Vector3(0, 0.8f, 0);
-        if (serial == "left") GameObject.Find("stamp").transform.position += new Vector3(0.8f, 0, 0);
-        if (serial == "right") GameObject.Find("stamp").transform.position -= new Vector3(0.8f, 0, 0);
+        if (serial == "up" && stamp.transform.position.y < 2.8f) stamp.transform.position += new Vector3(0, 0.8f, 0);
+        if (serial == "down"&& stamp.transform.position.y > -2.8f) stamp.transform.position -= new Vector3(0, 0.8f, 0);
+        if (serial == "left"&& stamp.transform.position.x < 2.8f) stamp.transform.position += new Vector3(0.8f, 0, 0);
+        if (serial == "right"&& stamp.transform.position.x > -2.8f) stamp.transform.position -= new Vector3(0.8f, 0, 0);
         if (serial == "guess")
         {
             stampos = stamp.transform.position;
@@ -65,7 +63,7 @@ public class planestamp : MonoBehaviour
                     correctamount += 1;
                     if (correctamount == 5)
                     {
-                        arduino.Write("1");
+                        GameObject.Find("win").transform.position = new Vector3(0,0,0);
                     }
                     goto gohere;
                 }
@@ -100,12 +98,13 @@ public class planestamp : MonoBehaviour
     void clearscreen()
     {
         GameObject[] deletethis = GameObject.FindGameObjectsWithTag("wrong");
-        Debug.Log(deletethis);
         foreach (GameObject getridofit in deletethis)
             Destroy(getridofit);
         wrongamount = 0;
         timetorefresh = delaybetweenwrong + Time.time;
-        delaybetweenwrong += 5f;
-        Debug.Log(delaybetweenwrong);
+        delaybetweenwrong += 90f;
+        if (delaybetweenwrong <= 255) {
+            delaybetweenwrong += 60f;
+        }
     }
 }
