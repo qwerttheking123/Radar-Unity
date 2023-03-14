@@ -6,6 +6,8 @@ TagManager:
   tags:
   - test
   - wrong
+  - disableonsolve
+  - right
   layers:
   - Default
   - TransparentFX

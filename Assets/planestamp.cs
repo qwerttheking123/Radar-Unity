@@ -12,7 +12,7 @@ public class planestamp : MonoBehaviour
     SerialPort arduino;
     int px;
     int py;
-    object[,] correct = { {1, 2}, {2, 6}, {4, 4}, {6, 7}, {8, 3} };
+    int[,] correct = { {1, 2}, {2, 6}, {4, 4}, {6, 7}, {8, 3} };
     int correctamount;
     int wrongamount;
     string serial;
@@ -20,7 +20,7 @@ public class planestamp : MonoBehaviour
     private float timetorefresh;
     GameObject temp;
     TMP_Text reboottext;
-    // B2, J2, F4, N6, D8 the correct is just translated for ease of use
+    // C1, J2, F4, N6, D8 the correct is just translated for ease of use
     void Start()
     {
         string[] ports = SerialPort.GetPortNames();
@@ -59,11 +59,22 @@ public class planestamp : MonoBehaviour
                 int cy = (int)correct[i, 1];
                 if (px == cx && py == cy)
                 {
-                    temp = Instantiate(GameObject.Find("plane right template"), stampos, stamp.transform.rotation, GameObject.Find("stamped").transform);
+                    temp = Instantiate(GameObject.Find("plane right template"), stampos - new Vector3(0, 0, 1), stamp.transform.rotation, GameObject.Find("stamped").transform);
+                    temp.tag = "right";
                     correctamount += 1;
                     if (correctamount == 5)
                     {
-                        GameObject.Find("win").transform.position = new Vector3(0,0,0);
+                        GameObject[] disable = GameObject.FindGameObjectsWithTag("disableonsolve");
+                        foreach (GameObject stopshow in disable)
+                            stopshow.SetActive(false);
+                        GameObject[] deleteright = GameObject.FindGameObjectsWithTag("right");
+                        foreach (GameObject getridofit in deleteright)
+                            Destroy(getridofit);
+                        GameObject[] deletewrong = GameObject.FindGameObjectsWithTag("wrong");
+                        foreach (GameObject getridofit in deletewrong)
+                            Destroy(getridofit);
+                        GameObject.Find("win").transform.position = new Vector3(1,0,0);
+                        enabled = false;
                     }
                     goto gohere;
                 }
@@ -71,7 +82,7 @@ public class planestamp : MonoBehaviour
                 {
                     if (i == 4)
                     {
-                        temp = Instantiate(GameObject.Find("plane wrong template"), stampos, stamp.transform.rotation, GameObject.Find("stamped").transform);
+                        temp = Instantiate(GameObject.Find("plane wrong template"), stampos - new Vector3(0,0,1), stamp.transform.rotation, GameObject.Find("stamped").transform);
                         temp.tag = "wrong";
                         wrongamount += 1;
                         if (wrongamount >= 3)
